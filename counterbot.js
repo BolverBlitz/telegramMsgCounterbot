@@ -167,6 +167,18 @@ bot.on(['/start', '/help'], (msg) => {
 	bot.deleteMessage(msg.chat.id, msg.message_id);
 });
 
+bot.on(/^\/outputhashid (.+)$/, (msg, props) => {
+    const IDtext = props.match[1];
+    let sqlcmd = "SELECT COUNT(*) AS amount FROM messagetable WHERE userid = " + hash(IDtext) + ";";
+    db.getConnection(function(err, connection){
+                connection.query(sqlcmd, function(err, rows){
+                bot.deleteMessage(msg.chat.id, msg.message_id);
+                    msg.reply.text("ID als HASH " + "'" + hash(IDtext) + "'"  + "\n" + " current amount of " + IDtext + " msgs is: " + util.inspect(rows[0].amount,false,null))
+            });
+      connection.release();
+        });
+});
+
 //updates userinformation
 bot.on('/updateuserinfo', (msg) => {
         let sqlcmd = "UPDATE optintable SET username = ? WHERE userid = ?";

@@ -29,6 +29,22 @@ let cooldown = [];
 
 bot.start();
 
+bot.on(/^\/support( .+)*$/, (msg, props) => {
+        const Para = props.match[1]
+	bot.deleteMessage(msg.chat.id, msg.message_id);
+        msg.reply.text("Vielen Dank. Der Support wurde informiert")
+        bot.sendMessage(config.SupID, "Benuzer: " + msg.from.id +" (" + msg.from.username + ")" + "\nGruppe:" + msg.chat.id + "\nNachricht: " + Para)
+        });
+
+bot.on(/^\/sreply( .+)*$/, (msg, props) => {
+        const Para = props.match[1].split(' ');
+        var ID = Para[1]
+        var MSG = Para[2]
+	bot.deleteMessage(msg.chat.id, msg.message_id);
+        msg.reply.text("Eine Nachricht wurde an den User:" + ID + " gesendet\n" + MSG)
+        bot.sendMessage(ID, "Antwort vom Support: " + MSG)
+        });
+
 bot.on('text', (msg) => {
 	var checkoptin = "SELECT COUNT(*) AS checkOptin FROM optintable where userid = " + hash(msg.from.id) + ";";
 	db.getConnection(function(err, connection){

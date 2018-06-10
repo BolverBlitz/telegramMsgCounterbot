@@ -60,6 +60,11 @@ bot.on('text', (msg) => {
 });
 
 bot.on('/optin', (msg) => {
+msg.reply.text("Mit /optintrue stimmen sie zu dass der Bot folgendes Speichert:\n-Uhrzeit wann eine Nachricht geschrieben wurde\n-Gehashte Telegram USER ID\n-Gruppen ID\n-Die Nachrichten ID\n\nSie können jederzeit ihre Einwilligung wiederrufen mit /optout\n\nMit /updateuserinfo könnt ihr euren aktuellen Nicknamen zu der gehashten USERID hinterlegen lassen, achtung so sind sie in der Datenbank nicht mehr Anonym! \nMit /deleteuserinfo können sie jederzeit ihren Nicknamen entfernen\n\nMit /deletemymsgs können sie sich aus der Bot Datenbank entfernen, dies kann nicht abgebrochen werden und die Daten sind für immer verloren! Dauer 0,003 Sekunden pro Nachricht\n\nGehasht wird von diesem Bot so Returns: A signed 32 bit integer representing the value of x")
+});
+
+
+bot.on('/optintrue', (msg) => {
 	let sqlcmd = "INSERT INTO optintable (userid) VALUES ?";
 	var values = [[hash(msg.from.id)]];
 	db.getConnection(function(err, connection){

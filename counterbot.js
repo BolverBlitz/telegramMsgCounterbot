@@ -8,7 +8,10 @@ var config = require('./config');
 const Telebot = require('telebot');
 const bot = new Telebot({
 	token: config.bottoken,
-	limit: 1000});
+	limit: 1000,
+        usePlugins: ['commandButton']
+});
+
 const util = require('util');
 const mysql = require('mysql'); 
 const hash = require('hash-int');

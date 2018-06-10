@@ -227,6 +227,17 @@ bot.on('/deleteuserinfo', (msg) => {
         });
 });
 
+bot.on(['/topinfo'], (msg) => {
+	let startmsg = "Commands:\n/top <ListenLänge> \n/topall <ListenLänge>";
+	msg.reply.text(startmsg).then(function(msg)
+                        {
+                                setTimeout(function(){
+                                        bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                                }, config.waittimestart);
+                        });
+	bot.deleteMessage(msg.chat.id, msg.message_id);
+});
+
 bot.on('/top', (msg) => {
         bot.sendAction(msg.chat.id, 'typing');
         let SELECT = "SELECT DISTINCT COUNT( `messagetable`.`msgid` ) AS `Msgs`, `messagetable`.`userid` AS `User`, `optintable`.`username` AS `Username`";

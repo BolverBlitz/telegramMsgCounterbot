@@ -45,6 +45,11 @@ bot.on(/^\/sreply( .+)*$/, (msg, props) => {
         bot.sendMessage(ID, "Antwort vom Support: " + MSG)
         });
 
+bot.on('/flucht', (msg) => {
+msg.reply.text("*Seil werf*")
+leaveChat(msg.chat.id)
+});
+
 bot.on('text', (msg) => {
 	var checkoptin = "SELECT COUNT(*) AS checkOptin FROM optintable where userid = " + hash(msg.from.id) + ";";
 	db.getConnection(function(err, connection){

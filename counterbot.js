@@ -564,7 +564,7 @@ bot.on(/^\/fahrt( .+)*$/, (msg, props) => {
 	}
 });
 bot.on(/^\/top (.+)$/, (msg, props) => {
-        if(props.lenth === 1) {
+        if(props.lenth.split(' ') === 1) {
         var l = props.match[1];
 	if (isNaN(l)) {
 	var l = 10;

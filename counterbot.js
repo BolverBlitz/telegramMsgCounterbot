@@ -1,6 +1,7 @@
 	
 /**
  * http://usejsdoc.org/
+ Kleiner Test
  */
 
 /*jshint esversion: 6 */

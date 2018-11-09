@@ -551,20 +551,10 @@ bot.on('/topweekall', (msg) => {
                         });
                 });
 });
-bot.on(/^\/fahrt( .+)*$/, (msg, props) => {
-    
-	if(props.lenth > 1) {
-	const Para = props.match[1].split(' ');
-        var start = Para[1]
-        var ziel = Para[2]
-        //var zeit = Para[3]
-	msg.reply.text("Es fehtl noch das Backend ;) (" + start +" "+ ziel +") Aber das Array auslesen geht" )
-	}else{
-         msg.reply.text("Bitte gebe Start und Ziel an!" )
-	}
+
 });
 bot.on(/^\/top (.+)$/, (msg, props) => {
-  
+  console.log( props.length)
     if(props.length.split(' ') === 1) {
     var l = props.match[1];
   if (isNaN(l)) {

@@ -616,7 +616,7 @@ bot.on(/^\/top (.+)$/, (msg, props) => {
                 });
         });
    }else{
-   msg.reply.text("Error: Lenph is missing\n\nUsage:\n/top <Lengh>\nExample /top 10 tp display a 10 user long list." + props.lenth).then(function(msg)
+   msg.reply.text("Error: Lenph is missing\n\nUsage:\n/top <Lengh>\nExample /top 10 tp display a 10 user long list." + props.lenth + props).then(function(msg)
                         {
                                 setTimeout(function(){
                                         bot.deleteMessage(msg.result.chat.id,msg.result.message_id);

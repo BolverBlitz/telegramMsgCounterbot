@@ -553,7 +553,7 @@ bot.on('/topweekall', (msg) => {
 });
 
 });
-bot.on(/^\/top\s*(\d+)?$/, (msg, props) => {
+bot.on(/^\/top\s*(\d*)?$/, (msg, props) => {
   console.log( props.length)
     if(props.length.split(' ') === 1) {
     var l = props.match[1];

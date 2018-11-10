@@ -553,18 +553,22 @@ bot.on('/topweekall', (msg) => {
 });
 
 });
-bot.on(/^\/top\s*(\d*)?$/, (msg, props) => {
-  console.log( props.length)
+bot.on(/^\/top(.+)$/, (msg, props) => {
+	 console.log(props);
     if(props.length.split(' ') === 1) {
-    var l = props.match[1];
-  if (isNaN(l)) {
-  var l = 10;
-  var t = 1;
-  }
-  if (l > 500) {
-  var l = 499;
-  var t = 1;
-  }
+    	var l = props.match[1];
+	if (isNaN(l)) {
+		var l = 10;
+		var t = 1;
+	}
+	if (l > 500) {
+		var l = 499;
+		var t = 1;
+	}
+	if (l < 0) {
+		var l = 1;
+		var t=1;
+	}
         bot.sendAction(msg.chat.id, 'typing');
 	    let groupid = msg.chat.id
         let SELECT = "SELECT DISTINCT COUNT( `messagetable`.`msgid` ) AS `Msgs`, `messagetable`.`userid` AS `User`, `optintable`.`username` AS `Username`";

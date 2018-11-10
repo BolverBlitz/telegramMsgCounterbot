@@ -1,7 +1,6 @@
 	
 /**
  * http://usejsdoc.org/
- Kleiner Test
  */
 
 /*jshint esversion: 6 */
@@ -26,7 +25,7 @@ var db = mysql.createPool({
 	charset : 'utf8mb4'
 });
 
-
+let botname = "msgCounter_bot";
 
 let cooldown = [];
 
@@ -273,9 +272,6 @@ bot.on('/optout', (msg) =>{
 		});
 	});
 });
-bot.on('/flucht', (msg) => {
-msg.reply.text("*Seil werf*")
-});
 
 
 bot.on('/checkcounting', (msg) => {
@@ -343,26 +339,31 @@ bot.on('/deletemymsgs', (msg) => {
 });
 
 bot.on(['/start', '/help'], (msg) => {
-	let startmsg = "Commands:\n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>";
-	msg.reply.text(startmsg).then(function(msg)
-                        {
-                                setTimeout(function(){
-                                        bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
-                                }, config.waittimestart);
-                        });
-	bot.deleteMessage(msg.chat.id, msg.message_id);
+	if(msg.chat.type != "private")
+	{
+		if(msg.text.split(' ')[0].endsWith(botname))
+		{
+		let startmsg = "Commands:\n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>";
+		msg.reply.text(startmsg).then(function(msg)
+	                        {
+	                                setTimeout(function(){
+	                                        bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+	                                }, config.waittimestart);
+	                        });
+		bot.deleteMessage(msg.chat.id, msg.message_id);
+		}
+	}else{
+		let startmsg = "Commands:\n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>";
+		msg.reply.text(startmsg).then(function(msg)
+	                        {
+	                                setTimeout(function(){
+	                                        bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+	                                }, config.waittimestart);
+	                        });
+		bot.deleteMessage(msg.chat.id, msg.message_id);
+	}
 });
 
-bot.on(['/topinfo'], (msg) => {
-	let startmsg = "Commands:\n/top <ListenLänge> \n/topall <ListenLänge \n/topweek <ListenLänge>\n/toptoday <ListenLänge>>";
-	msg.reply.text(startmsg).then(function(msg)
-                        {
-                                setTimeout(function(){
-                                        bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
-                                }, config.waittimestart);
-                        });
-	bot.deleteMessage(msg.chat.id, msg.message_id);
-});
 
 //updates userinformation
 bot.on('/updateuserinfo', (msg) => {
@@ -413,149 +414,22 @@ bot.on('/ping', (msg) => {
 });
 
 
-bot.on(/^\/topall (.+)$/, (msg, props) => {
-        var l = props.match[1];
-        
-	if (isNaN(l)) {
-	var l = 10;
-	var t = 1;
-	}
-	if (l > 500) {
-	var l = 499;
-	var t = 1;
-	}
-	if (l < 0) {
-	var l = 1;
-	var t=1;
-	}
-        bot.sendAction(msg.chat.id, 'typing');
-        let SELECT = "SELECT DISTINCT COUNT( `messagetable`.`msgid` ) AS `Msgs`, `messagetable`.`userid` AS `User`, `optintable`.`username` AS `Username`";
-        let FROM = " FROM { oj `counterdb`.`messagetable` AS `messagetable` NATURAL LEFT OUTER JOIN `counterdb`.`optintable` AS `optintable` }";
-        let GROUP = " GROUP BY `messagetable`.`userid`";
-        let ORDER = " ORDER BY Msgs DESC LIMIT " + l + ";" ;
-        let sqlcmd = SELECT + FROM + GROUP + ORDER;
-        db.getConnection(function(err, connection) {
-                connection.query(sqlcmd, function(err, rows){
-                        if(err) msg.reply.text("Zu blöd ne Nummer einzugeben?", { parseMode: 'markdown' });
-			if(err) var t=1;
-                        let result = "The top " + l + " people writing msgs: \n";
-                        for(var i in rows)
-                        {
-                                var i1 = +i +1;
-                                let user = "";
-                                if(rows[i].Username != null)
-                                {
-                                        user = ". [" + rows[i].Username + "](t.me/" + rows[i].Username + ")";
-                                }else{
-                                        user = ". " + rows[i].User;
-                                }
-                                result = result + i1 + user + " | Msgs#: " + rows[i].Msgs;
-                                result = result + "\n";
-                        }
-                        result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo\n\nEulen triggerd:" + t;
-                        msg.reply.text(result, { parseMode: 'markdown' }).then(function(msg)
-                        {
-			
-                                setTimeout(function(){
-                                        bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
-                                }, config.waittimetop);
-                        });
-			bot.deleteMessage(msg.chat.id, msg.message_id);
-                        connection.release();
-                });
-        });
+
+
+
+bot.on("/top", (msg) => {
+	 msg.reply.text("Error: Length is missing\n\nUsage:\n/top <Length>\nExample /top 10 to display a 10 user long list.").then(function(msg)
+             {
+                     setTimeout(function(){
+                             bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                     }, config.waittimetop);
+             });
+             bot.deleteMessage(msg.chat.id, msg.message_id);
+
+     bot.deleteMessage(msg.chat.id, msg.message_id);
 });
 
-
-
-
-bot.on('/toptodayall', (msg) => {
-                bot.sendAction(msg.chat.id, 'typing');
-                let SELECT = "SELECT DISTINCT COUNT( `messagetable`.`msgid` ) AS `Msgs`, `messagetable`.`userid` AS `User`, `optintable`.`username` AS `Username`";
-                let FROM = " FROM { oj `counterdb`.`messagetable` AS `messagetable` NATURAL LEFT OUTER JOIN `counterdb`.`optintable` AS `optintable` }";
-                let WHERE = " WHERE DATE(`messagetable`.`time`) = CURDATE()";
-                let GROUP = " GROUP BY `messagetable`.`userid`";
-                let ORDER = " ORDER BY `Msgs` DESC LIMIT 10;";
-                let sqlcmd = SELECT + FROM + WHERE + GROUP + ORDER;
-                db.getConnection(function(err, connection) {
-                        connection.query(sqlcmd, function(err, rows){
-                                if(err) throw err;
-                                let result = "The top people 10 writing msgs to DAY are: \n";
-                                for(var i in rows)
-                                {
-                                        var i1 = +i +1;
-                                        let user = "";
-                                        if(rows[i].Username != null)
-                                        {
-                                                user = ". [" + rows[i].Username + "](t.me/" + rows[i].Username + ")";
-                                        }else{
-                                                user = ". " + rows[i].User;
-                                        }
-                                        result = result + i1 + user + " | Messages#: " + rows[i].Msgs;
-                                        result = result + "\n";
-                                }
-                                result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo";
-                                if(msg.chat.type!="private")
-                                {
-                                        bot.deleteMessage(msg.chat.id, msg.message_id);
-                                }
-				msg.reply.text(result, { parseMode: 'markdown' }).then(function(msg)
-                                {
-                                        setTimeout(function(){
-                                                bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
-                                        }, config.waittimetop);
-                                });
-                                connection.release();
-                        });
-                });
-});
-
-//sends a list containing the top 10 people writing msgs of the last week
-bot.on('/topweekall', (msg) => {
-                bot.sendAction(msg.chat.id, 'typing');
-                let SELECT = "SELECT DISTINCT COUNT( `messagetable`.`msgid` ) AS `Msgs`, `messagetable`.`userid` AS `User`, `optintable`.`username` AS `Username`";
-                let FROM = " FROM { oj `counterdb`.`messagetable` AS `messagetable` NATURAL LEFT OUTER JOIN `counterdb`.`optintable` AS `optintable` }";
-		let WHERE = " WHERE (`messagetable`.`time` > (now() - INTERVAL 1 WEEK))";
-                let GROUP = " GROUP BY `messagetable`.`userid`";
-                let ORDER = " ORDER BY `Msgs` DESC LIMIT 10;";
-                let sqlcmd = SELECT + FROM + WHERE + GROUP + ORDER;
-                db.getConnection(function(err, connection) {
-                        connection.query(sqlcmd, function(err, rows){
-                                if(err) throw err;
-                                let result = "The top people 10 writing msgs this WEEK are: \n";
-                                for(var i in rows)
-                                {
-                                        var i1 = +i +1;
-                                        let user = "";
-                                        if(rows[i].Username != null)
-                                        {
-                                                user = ". [" + rows[i].Username + "](t.me/" + rows[i].Username + ")";
-                                        }else{
-                                                user = ". " + rows[i].User;
-                                        }
-                                        result = result + i1 + user + " | Messages#: " + rows[i].Msgs;
-                                        result = result + "\n";
-                                }
-                                result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo";
-                                if(msg.chat.type!="private")
-                                {
-                                        bot.deleteMessage(msg.chat.id, msg.message_id);
-                                }
-				msg.reply.text(result, { parseMode: 'markdown' }).then(function(msg)
-                                {
-                                        setTimeout(function(){
-                                                bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
-                                        }, config.waittimetop);
-                                });
-                                connection.release();
-                        });
-                });
-});
-
-});
 bot.on(/^\/top(.+)$/, (msg, props) => {
-	 console.log(props);
-    if(props.length.split(' ') === 1) {
     	var l = props.match[1];
 	if (isNaN(l)) {
 		var l = 10;
@@ -580,7 +454,7 @@ bot.on(/^\/top(.+)$/, (msg, props) => {
         db.getConnection(function(err, connection) {
                 connection.query(sqlcmd, function(err, rows){
                         if(err) msg.reply.text("Zu blöd ne Nummer einzugeben?", { parseMode: 'markdown' });
-			if(err) var t=1;
+                        if(err) var t=1;
                         let result = "The top " + l + " people writing msgs in this GROUP are: \n";
                         for(var i in rows)
                         {
@@ -606,18 +480,6 @@ bot.on(/^\/top(.+)$/, (msg, props) => {
                         connection.release();
                 });
         });
-   }else{
-   msg.reply.text("Error: Lenph is missing\n\nUsage:\n/top <Lengh>\nExample /top 10 tp display a 10 user long list." + props.lenth + props).then(function(msg)
-                        {
-                                setTimeout(function(){
-                                        bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
-                                }, config.waittimetop);
-                        });
-                        bot.deleteMessage(msg.chat.id, msg.message_id);
-
-   bot.deleteMessage(msg.chat.id, msg.message_id);
-
-   };
 });
 
 
@@ -699,4 +561,153 @@ bot.on('/topweek', (msg) => {
         });
 });
 
+bot.on("/topall", (msg) => {
+	 msg.reply.text("Error: Length is missing\n\nUsage:\n/topall <Length>\nExample /topall 10 to display a 10 user long list.").then(function(msg)
+            {
+                    setTimeout(function(){
+                            bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                    }, config.waittimetop);
+            });
+            bot.deleteMessage(msg.chat.id, msg.message_id);
+
+    bot.deleteMessage(msg.chat.id, msg.message_id);
+});
+
+bot.on(/^\/topall(.+)$/, (msg, props) => {
+   	var l = props.match[1];
+	if (isNaN(l)) {
+		var l = 10;
+		var t = 1;
+	}
+	if (l > 500) {
+		var l = 499;
+		var t = 1;
+	}
+	if (l < 0) {
+		var l = 1;
+		var t=1;
+	}
+    bot.sendAction(msg.chat.id, 'typing');
+    let SELECT = "SELECT DISTINCT COUNT( `messagetable`.`msgid` ) AS `Msgs`, `messagetable`.`userid` AS `User`, `optintable`.`username` AS `Username`";
+    let FROM = " FROM { oj `counterdb`.`messagetable` AS `messagetable` NATURAL LEFT OUTER JOIN `counterdb`.`optintable` AS `optintable` }";
+    let GROUP = " GROUP BY `messagetable`.`userid`";
+    let ORDER = " ORDER BY Msgs DESC LIMIT " + l + ";" ;
+    let sqlcmd = SELECT + FROM + GROUP + ORDER;
+    db.getConnection(function(err, connection) {
+            connection.query(sqlcmd, function(err, rows){
+                    if(err) msg.reply.text("Zu blöd ne Nummer einzugeben?", { parseMode: 'markdown' });
+		if(err) var t=1;
+                    let result = "The top " + l + " people writing msgs: \n";
+                    for(var i in rows)
+                    {
+                            var i1 = +i +1;
+                            let user = "";
+                            if(rows[i].Username != null)
+                            {
+                                    user = ". [" + rows[i].Username + "](t.me/" + rows[i].Username + ")";
+                            }else{
+                                    user = ". " + rows[i].User;
+                            }
+                            result = result + i1 + user + " | Msgs#: " + rows[i].Msgs;
+                            result = result + "\n";
+                    }
+                    result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo\n\nEulen triggerd:" + t;
+                    msg.reply.text(result, { parseMode: 'markdown' }).then(function(msg)
+                    {
+		
+                            setTimeout(function(){
+                                    bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                            }, config.waittimetop);
+                    });
+		bot.deleteMessage(msg.chat.id, msg.message_id);
+                    connection.release();
+            });
+    });
+});
+
+
+
+
+bot.on('/toptodayall', (msg) => {
+            bot.sendAction(msg.chat.id, 'typing');
+            let SELECT = "SELECT DISTINCT COUNT( `messagetable`.`msgid` ) AS `Msgs`, `messagetable`.`userid` AS `User`, `optintable`.`username` AS `Username`";
+            let FROM = " FROM { oj `counterdb`.`messagetable` AS `messagetable` NATURAL LEFT OUTER JOIN `counterdb`.`optintable` AS `optintable` }";
+            let WHERE = " WHERE DATE(`messagetable`.`time`) = CURDATE()";
+            let GROUP = " GROUP BY `messagetable`.`userid`";
+            let ORDER = " ORDER BY `Msgs` DESC LIMIT 10;";
+            let sqlcmd = SELECT + FROM + WHERE + GROUP + ORDER;
+            db.getConnection(function(err, connection) {
+                    connection.query(sqlcmd, function(err, rows){
+                            if(err) throw err;
+                            let result = "The top people 10 writing msgs to DAY are: \n";
+                            for(var i in rows)
+                            {
+                                    var i1 = +i +1;
+                                    let user = "";
+                                    if(rows[i].Username != null)
+                                    {
+                                            user = ". [" + rows[i].Username + "](t.me/" + rows[i].Username + ")";
+                                    }else{
+                                            user = ". " + rows[i].User;
+                                    }
+                                    result = result + i1 + user + " | Messages#: " + rows[i].Msgs;
+                                    result = result + "\n";
+                            }
+                            result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo";
+                            if(msg.chat.type!="private")
+                            {
+                                    bot.deleteMessage(msg.chat.id, msg.message_id);
+                            }
+			msg.reply.text(result, { parseMode: 'markdown' }).then(function(msg)
+                            {
+                                    setTimeout(function(){
+                                            bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                                    }, config.waittimetop);
+                            });
+                            connection.release();
+                    });
+            });
+});
+
+//sends a list containing the top 10 people writing msgs of the last week
+bot.on('/topweekall', (msg) => {
+            bot.sendAction(msg.chat.id, 'typing');
+            let SELECT = "SELECT DISTINCT COUNT( `messagetable`.`msgid` ) AS `Msgs`, `messagetable`.`userid` AS `User`, `optintable`.`username` AS `Username`";
+            let FROM = " FROM { oj `counterdb`.`messagetable` AS `messagetable` NATURAL LEFT OUTER JOIN `counterdb`.`optintable` AS `optintable` }";
+	let WHERE = " WHERE (`messagetable`.`time` > (now() - INTERVAL 1 WEEK))";
+            let GROUP = " GROUP BY `messagetable`.`userid`";
+            let ORDER = " ORDER BY `Msgs` DESC LIMIT 10;";
+            let sqlcmd = SELECT + FROM + WHERE + GROUP + ORDER;
+            db.getConnection(function(err, connection) {
+                    connection.query(sqlcmd, function(err, rows){
+                            if(err) throw err;
+                            let result = "The top people 10 writing msgs this WEEK are: \n";
+                            for(var i in rows)
+                            {
+                                    var i1 = +i +1;
+                                    let user = "";
+                                    if(rows[i].Username != null)
+                                    {
+                                            user = ". [" + rows[i].Username + "](t.me/" + rows[i].Username + ")";
+                                    }else{
+                                            user = ". " + rows[i].User;
+                                    }
+                                    result = result + i1 + user + " | Messages#: " + rows[i].Msgs;
+                                    result = result + "\n";
+                            }
+                            result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo";
+                            if(msg.chat.type!="private")
+                            {
+                                    bot.deleteMessage(msg.chat.id, msg.message_id);
+                            }
+			msg.reply.text(result, { parseMode: 'markdown' }).then(function(msg)
+                            {
+                                    setTimeout(function(){
+                                            bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                                    }, config.waittimetop);
+                            });
+                            connection.release();
+                    });
+            });
+});
 

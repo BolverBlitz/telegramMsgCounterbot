@@ -1,4 +1,3 @@
-	
 /**
  * http://usejsdoc.org/
  */
@@ -26,69 +25,179 @@ var db = mysql.createPool({
 });
 
 let botname = "msgCounter_bot";
+let Version = "1.1"
 
+let Sekunde = 1000;
+let Minute = Sekunde*60;
+let Stunde = Minute*60;
+let Tag = Stunde*24;
+let Monat = Tag*(365/12);
+let Jahr = Tag*365;
 let cooldown = [];
 
+let started = new Date();
+
 bot.start();
+
+bot.on(/^\/info$/i, (msg) => {
+	msg.reply.text("Botname: " + botname + "\nVersion: " + Version + "\n\nLast changes: (" + Version + ")\n- Added /info to display botname, version and changelog\n- Fixed issue with support answer\n- Added /delete Reply to a message to delete it\n- Fixed /help trigger in Groups, bot will only awnser if you use /help@" + botname + "\n- Updated /help text\n- Added /cl help\n\nNext big update?\n- FritzOS API Connection\n- Full Support for Fritz!DECT 200\n- Advanced Graphs and database for Dect 200 powerusage, voltage and temperature").then(function(msg)
+             {
+                     setTimeout(function(){
+                             bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                     }, config.waittimetop);
+             });
+             bot.deleteMessage(msg.chat.id, msg.message_id);
+});
+
+bot.on(/^\/changelog$/i, (msg) => {
+	 msg.reply.text("In Arbeit").then(function(msg)
+             {
+                     setTimeout(function(){
+                             bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                     }, config.waittimetop);
+             });
+             bot.deleteMessage(msg.chat.id, msg.message_id);
+
+});
+
+bot.on(/^\/changelog(.+)$/i, (msg, props) => {
+	bot.deleteMessage(msg.chat.id, msg.message_id);
+});
+
+
+bot.on(/^\/geburtstag$/i, (msg) => {
+	 msg.reply.text("Error: Date and Time is missing.Do /geburtstag DD.MM.YYYY HH:MM:SS").then(function(msg)
+             {
+                     setTimeout(function(){
+                             bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                     }, config.waittimetop);
+             });
+             bot.deleteMessage(msg.chat.id, msg.message_id);
+
+     bot.deleteMessage(msg.chat.id, msg.message_id);
+});
+
+bot.on([/^\/geburtstag(.+)$/i,/^\/datumsrechner(.+)$/i], (msg, props) => {
+	var startDateUnix = new Date().getTime();
+	
+	var props2 = props.match[1].split(' ')
+	var date = props2[1].split('.');
+	var time = props2[2].split(':');
+	
+	var dd = date[0];
+	var mm = date[1];
+	var yyyy = date[2];
+	
+	
+	var thh = time[0];
+	if(thh = 'undefined'){
+	var thh = 00;
+	}
+	var tmm = time[1];
+	if(tmm = 'undefined'){
+	var tmm = 00;
+	}
+	var tss = time[2];
+	if(tss = 'undefined'){
+	var tss = 00;
+	}
+	var newDate = mm+"/"+dd+"/"+yyyy;
+	var TimeDoneUnix = new Date(newDate).getTime() + thh * 60 * 60 * 1000 + tmm * 60 * 1000 + tss * 1000 + 60 * 60 * 1000;
+    //msg.reply.text("String(props2) = [" + props2 + "]\nprops2[1] = " + date + "\nprops2[2] = " + time + "\n\ndate[0] = " + dd + "\ndate[1] = " + mm + "\ndate[2] = " + yyyy + "\n\ntime[0] = " + thh + "\ntime[1] = " + tmm + "\ntime[2] = " + tss + "\n\nAktuelles Datum: " + startDateUnix + "\nDein Datum: " + TimeDoneUnix);
+	var monat = new Date().getMonth() + 1;
+	var AlterSekunden = startDateUnix/1000 - TimeDoneUnix/1000;
+	if(AlterSekunden < 0){
+		var AlterSekundenZukunft = AlterSekunden*(-1);
+			var TeilAlterJahre = Math.floor((AlterSekundenZukunft*1000)/Jahr);
+			var TeilAlterJahreRest = AlterSekundenZukunft*1000-(TeilAlterJahre*Jahr)
+	
+			var TeilAlterMonate = Math.floor((TeilAlterJahreRest)/Monat);
+			var TeilAlterMonateRest = TeilAlterJahreRest-(TeilAlterMonate*Monat)
+	
+			var TeilAlterTage =  Math.floor((TeilAlterMonateRest)/Tag);
+			var TeilAlterTageRest = TeilAlterMonateRest-(TeilAlterTage*Tag)
+	
+			var TeilAlterStunde =  Math.floor((TeilAlterTageRest)/Stunde);
+			var TeilAlterStundeRest = TeilAlterTageRest-(TeilAlterStunde*Stunde)
+	
+			var TeilAlterMinute =  Math.floor((TeilAlterStundeRest)/Minute);
+			var TeilAlterMinuteRest = TeilAlterStundeRest-(TeilAlterMinute*Minute)
+	
+			var TeilAlterSekunde =  Math.floor((TeilAlterMinuteRest)/Sekunde);
+			var TeilAlterSekundeRest = TeilAlterMinuteRest-(TeilAlterSekunde*Sekunde)
+	
+	msg.reply.text("Angegebenes Zukunftsdatum: " + dd + "." + mm + "." + yyyy + " " + thh + ":" + tmm + ":" + tss + "\nHeutiges Datum: " + new Date().getDate() + "." + monat + "." + new Date().getFullYear() +  " " + new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds() + "." + new Date().getMilliseconds() + "\n\n" + "Zeitunterschied in Sekunden: " + AlterSekundenZukunft + "\nDas sind:\nJahre: " + TeilAlterJahre + "\nMonate: " + TeilAlterMonate + "\nTage: " + TeilAlterTage + "\nStunden: " + TeilAlterStunde + "\nMinuten: " + TeilAlterMinute + "\nSekunden: " + TeilAlterSekunde + "\nMillisekunden: " + TeilAlterSekundeRest + "\nDies ist ohne berücksichtigung der Schaltjahre und Schaltsekunden!")
+	bot.deleteMessage(msg.chat.id, msg.message_id);
+	}else{
+		
+	var TeilAlterJahre = Math.floor((AlterSekunden*1000)/Jahr);
+	var TeilAlterJahreRest = AlterSekunden*1000-(TeilAlterJahre*Jahr)
+	
+	var TeilAlterMonate = Math.floor((TeilAlterJahreRest)/Monat);
+	var TeilAlterMonateRest = TeilAlterJahreRest-(TeilAlterMonate*Monat)
+	
+	var TeilAlterTage =  Math.floor((TeilAlterMonateRest)/Tag);
+	var TeilAlterTageRest = TeilAlterMonateRest-(TeilAlterTage*Tag)
+	
+	var TeilAlterStunde =  Math.floor((TeilAlterTageRest)/Stunde);
+	var TeilAlterStundeRest = TeilAlterTageRest-(TeilAlterStunde*Stunde)
+	
+	var TeilAlterMinute =  Math.floor((TeilAlterStundeRest)/Minute);
+	var TeilAlterMinuteRest = TeilAlterStundeRest-(TeilAlterMinute*Minute)
+	
+	var TeilAlterSekunde =  Math.floor((TeilAlterMinuteRest)/Sekunde);
+	var TeilAlterSekundeRest = TeilAlterMinuteRest-(TeilAlterSekunde*Sekunde)
+	
+	msg.reply.text("Angegebenes Geburtsdatum: " + dd + "." + mm + "." + yyyy + " " + thh + ":" + tmm + ":" + tss + "\nHeutiges Datum: " + new Date().getDate() + "." + monat + "." + new Date().getFullYear() +  " " + new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds() + "." + new Date().getMilliseconds() + "\n\n" + msg.from.username + ": dein Alter in Sekunden: " + AlterSekunden + "\nDas sind:\nJahre: " + TeilAlterJahre + "\nMonate: " + TeilAlterMonate + "\nTage: " + TeilAlterTage + "\nStunden: " + TeilAlterStunde + "\nMinuten: " + TeilAlterMinute + "\nSekunden: " + TeilAlterSekunde + "\nMillisekunden: " + TeilAlterSekundeRest + "\nDies ist ohne berücksichtigung der Schaltjahre und Schaltsekunden!")
+	bot.deleteMessage(msg.chat.id, msg.message_id);
+	}
+	
+});
+
 
 bot.on('/pin', (msg) => {
 	bot.pinChatMessage(msg.chat.id, msg.reply_to_message.message_id);
 	bot.deleteMessage(msg.chat.id, msg.message_id);
 
 });
-
-bot.on(/^\/pinthis( .+)*$/, (msg, props) => {
-        bot.sendMessage(msg.chat.id, props);
-	bot.pinChatMessage(msg.result.chat.id,msg.result.message_id);
-	
-        });
 bot.on('/delete',(msg) => {
 bot.deleteMessage(msg.chat.id, msg.reply_to_message.message_id);
 bot.deleteMessage(msg.chat.id, msg.message_id);
 });
 
-bot.on('/addadmin', (msg) => {
-        var checkOptin = "SELECT COUNT(*) FROM admintable, state AS state FROM admintable where userid = " + hash(msg.from.id) + ";";
-      db.connection.query(checkOptin, function(err, rows) {
-      if (rows[0].checkOptin == 1) {
-	let sqlcmd = "INSERT IGNORE INTO admintable (userid, state) VALUES ?";
-	var values = [[hash(msg.reply_to_message.from.id), 1]];
-	db.getConnection(function(err, connection){
-                connection.query(sqlcmd, [values], function(err, result){
-			bot.deleteMessage(msg.chat.id, msg.message_id);
-			msg.reply.text("@" + msg.from.username + " hat @" + msg.reply_to_message.from.username + " zum Admin Level 1 gemacht").then(function(msg)
-                        {
-                                setTimeout(function(){
-                                        bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
-                                }, config.waittimetop);
-                        });
-			connection.release();
-		});
-	});
-       };
-     });
-});
 
-
-bot.on(/^\/support( .+)*$/, (msg, props) => {
+bot.on(/^\/support( .+)*$/i, (msg, props) => {
         const Para = props.match[1]
 	bot.deleteMessage(msg.chat.id, msg.message_id);
         msg.reply.text("Vielen Dank. Der Support wurde informiert")
         bot.sendMessage(-1001236038060, "Benuzer: " + msg.from.id +" (" + msg.from.username + ")" + "\nGruppe:" + msg.chat.id + "\nNachricht: " + Para)
         });
 
-bot.on(/^\/sreply( .+)*$/, (msg, props) => {
+bot.on(/^\/sreply( .+)*$/i, (msg, props) => {
         const Para = props.match[1].split(' ');
         var ID = Para[1]
-        var MSG = Para[2]
+		var MSG = Para[2]
 	bot.deleteMessage(msg.chat.id, msg.message_id);
-        msg.reply.text("Eine Nachricht wurde an den User:" + ID + " gesendet\n" + MSG)
-        bot.sendMessage(ID, "Antwort vom Support: " + MSG)
+		for(var i = 3; i < Para.length;i++){
+			MSG = MSG + " " + Para[i];
+		}
+			msg.reply.text("Eine Nachricht wurde an den User:" + ID + " gesendet\n" + MSG)
+			bot.sendMessage(ID, "Antwort vom " + msg.from.username  + MSG)
         });
 
+bot.on(/^\/cl$/i, (msg) => {
+	 msg.reply.text("How to use /cl <Number> <Operator> <Number>\nCurrenty supportet:\n+  -  *  /\n'w' for square root\n'h' for squares\n\nJust for fun 'manu' and 'matt'").then(function(msg)
+             {
+                     setTimeout(function(){
+                             bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                     }, config.waittimetop);
+             });
+             bot.deleteMessage(msg.chat.id, msg.message_id);
 
+     bot.deleteMessage(msg.chat.id, msg.message_id);
+});
 
-bot.on(/^\/cl( .+)*$/, (msg, props) => {
+bot.on(/^\/cl( .+)*$/i, (msg, props) => {
 	bot.deleteMessage(msg.chat.id, msg.message_id);
         
         if (props === undefined) {
@@ -149,55 +258,10 @@ var op2 = 'Matt Faktor';
 }
 });
 
-bot.on('/knopf', msg => {
-
-    // Inline keyboard markup
-    const replyMarkup = bot.inlineKeyboard([
-        [
-            // First row with command callback button
-            bot.inlineButton('Command button', {callback: '/help'})
-        ],
-        [
-            // Second row with regular command button
-            bot.inlineButton('Regular data button', {callback: '/mymsgs'})
-        ]
-    ]);
-
-    // Send message with keyboard markup
-    return msg.reply.text('Example of command button.', {replyMarkup});
-
-});
-
-// Button callback
-bot.on('callbackQuery', (msg) => {
-    if (msg.data = 'lol') {
-	bot.sendMessage(-1001319107313, 'Drogen Funktionieren');
-	
-	}
-    if (msg.data = 'hello') {
-    bot.sendMessage(-1001319107313, 'Drogen sind einfach');
-        }
-    bot.sendMessage('callbackQuery data:',msg.data);
-    bot.answerCallbackQuery(msg.id);
-
-});
 
 
-/*
-const queryString = require('querystring');
-let l = 'http://foo.bar/whatever?ref=xxx&foo=bar';
-l = l.substr(2);
-l = queryString.parse(1);
-console.log(l);
-let params;
-const myUrl = new URL('https://test.org/?ref=123');
-console.log(myURL.searchParams.get('ref'));
-params = new URLSearchParams('user=abc&etc');
-console.log(params.get('user'));
-*/
 
-
-bot.on(/^\/outputhashid (.+)$/, (msg, props) => {
+bot.on(/^\/outputhashid (.+)$/i, (msg, props) => {
    if(msg.from.id == config.isSuperAdmin) {
     const IDtext = props.match[1];
     let sqlcmd = "SELECT COUNT(*) AS amount FROM messagetable WHERE userid = " + hash(IDtext) + ";";
@@ -217,7 +281,6 @@ bot.on(/^\/outputhashid (.+)$/, (msg, props) => {
 });
 
 bot.on('text', (msg) => {
-        
 	var checkoptin = "SELECT COUNT(*) AS checkOptin FROM optintable where userid = " + hash(msg.from.id) + ";";
 	db.getConnection(function(err, connection){
                 connection.query(checkoptin, function(err, rows){
@@ -230,6 +293,7 @@ bot.on('text', (msg) => {
 		});
 	});
 });
+
 
 
 
@@ -291,6 +355,7 @@ bot.on('/checkcounting', (msg) => {
 });
 
 bot.on('/overallmsgs', (msg) => {
+	bot.deleteMessage(msg.chat.id, msg.message_id);
         let sqlcmd = "SELECT COUNT(*) AS amount FROM messagetable";
 	db.getConnection(function(err, connection){
                 connection.query(sqlcmd, function(err, rows){
@@ -307,6 +372,7 @@ bot.on('/overallmsgs', (msg) => {
 });
 
 bot.on('/mymsgs', (msg) => {
+	bot.deleteMessage(msg.chat.id, msg.message_id);
         let sqlcmd = "SELECT COUNT(*) AS amount FROM messagetable WHERE userid = " + hash(msg.from.id) + ";";
 	db.getConnection(function(err, connection){
                 connection.query(sqlcmd, function(err, rows){
@@ -339,11 +405,12 @@ bot.on('/deletemymsgs', (msg) => {
 });
 
 bot.on(['/start', '/help'], (msg) => {
+	bot.deleteMessage(msg.chat.id, msg.message_id);
 	if(msg.chat.type != "private")
 	{
 		if(msg.text.split(' ')[0].endsWith(botname))
 		{
-		let startmsg = "Commands:\n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>";
+		let startmsg = "Message Counting: \n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>\n\n Random Stuff:\n/info Botname, Version and Changelog\n/geburtstag DD.MM.YYYY HH:MM:SS to get the time passed\n/cl to calculate numbers\n/support To get help";
 		msg.reply.text(startmsg).then(function(msg)
 	                        {
 	                                setTimeout(function(){
@@ -353,7 +420,7 @@ bot.on(['/start', '/help'], (msg) => {
 		bot.deleteMessage(msg.chat.id, msg.message_id);
 		}
 	}else{
-		let startmsg = "Commands:\n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>";
+		let startmsg = "Message Counting: \n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>\n\n Random Stuff:\n/info Botname, Version and Changelog\n/geburtstag DD.MM.YYYY HH:MM:SS to get the time passed\n/cl to calculate numbers\n/support To get help";
 		msg.reply.text(startmsg).then(function(msg)
 	                        {
 	                                setTimeout(function(){
@@ -405,7 +472,7 @@ bot.on('/deleteuserinfo', (msg) => {
 
 bot.on('/ping', (msg) => {
         msg.reply.text("Pong, Pung, Ping! Ente!!!! FOOOOOOOSSS!!!").then(function(msg)
-		{
+				{
                 	setTimeout(function(){
                         	bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
                        	}, config.waittimeping);
@@ -417,8 +484,9 @@ bot.on('/ping', (msg) => {
 
 
 
-bot.on("/top", (msg) => {
-	 msg.reply.text("Error: Length is missing\n\nUsage:\n/top <Length>\nExample /top 10 to display a 10 user long list.").then(function(msg)
+bot.on(/^\/top$/i, (msg) => {
+	bot.deleteMessage(msg.chat.id, msg.message_id);
+	 msg.reply.text("Error: Length is missing\n\nUsage:\n/top <Length>\nExample /top 10 to display a 10 user long list.\nYou can also use /toptoday or /topweek").then(function(msg)
              {
                      setTimeout(function(){
                              bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
@@ -429,7 +497,8 @@ bot.on("/top", (msg) => {
      bot.deleteMessage(msg.chat.id, msg.message_id);
 });
 
-bot.on(/^\/top(.+)$/, (msg, props) => {
+bot.on(/^\/top (.+)$/i, (msg, props) => {
+	bot.deleteMessage(msg.chat.id, msg.message_id);
     	var l = props.match[1];
 	if (isNaN(l)) {
 		var l = 10;
@@ -561,8 +630,11 @@ bot.on('/topweek', (msg) => {
         });
 });
 
-bot.on("/topall", (msg) => {
-	 msg.reply.text("Error: Length is missing\n\nUsage:\n/topall <Length>\nExample /topall 10 to display a 10 user long list.").then(function(msg)
+
+
+
+bot.on(/^\/topall$/i, (msg) => {
+	 msg.reply.text("Error: Length is missing\n\nUsage:\n/topall <Length>\nExample /topall 10 to display a 10 user long list.\nYou can also use /toptodayall or /topweekall").then(function(msg)
             {
                     setTimeout(function(){
                             bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
@@ -573,7 +645,7 @@ bot.on("/topall", (msg) => {
     bot.deleteMessage(msg.chat.id, msg.message_id);
 });
 
-bot.on(/^\/topall(.+)$/, (msg, props) => {
+bot.on(/^\/topall (.+)$/i, (msg, props) => {
    	var l = props.match[1];
 	if (isNaN(l)) {
 		var l = 10;
@@ -710,4 +782,3 @@ bot.on('/topweekall', (msg) => {
                     });
             });
 });
-

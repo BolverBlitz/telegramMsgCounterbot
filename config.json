@@ -1,9 +1,9 @@
 {
         "dbreaduserhost":"localhost",
-        "dbreaduser":"DB Username",
-        "dbreaduserpwd":"DB Passwort",
-        "bottoken":"HuaptBotAPI Key",
-        "bottoken2":"Unnötig",
+        "dbreaduser":"USER",
+        "dbreaduserpwd":"Password",
+        "bottoken":"KEY",
+        "bottoken2":"KEY",
 	"database":"counterdb",
 	"waittimeoptin":"400",
 	"waittimeoptout":"400",
@@ -11,11 +11,11 @@
 	"waittimeoverallmsgs":"3500",
 	"waittimemymsgs":"2500",
 	"waittimedeletemymsgs":"750",
-	"waittimestart":"10000",
+	"waittimestart":"15000",
 	"waittimeupdateuserinfo":"700",
 	"waittimedeleteuserinfo":"700",
 	"waittimetop":"17500",
 	"waittimeping":"200",
         "waitgidf":"5000",
-	"SupID":"SUPTG ID",
+        "isSuperAdmin":"206921999"
 }

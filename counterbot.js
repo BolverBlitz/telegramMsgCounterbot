@@ -4,6 +4,7 @@
 
 /*jshint esversion: 6 */
 var config = require('./config');
+var changelog = require('./changelog');
 const Telebot = require('telebot');
 const bot = new Telebot({
 	token: config.bottoken,
@@ -25,7 +26,14 @@ var db = mysql.createPool({
 });
 
 let botname = "msgCounter_bot";
-let Version = "1.1"
+let version = "1.1"
+
+
+let versiontemp = version.split('.'); //Replace . with _ in var version and create var versionfix
+let versionfix = versiontemp[0];
+for(var i = 1; i < versiontemp.length;i++){
+			versionfix = versionfix + "_" + versiontemp[i];
+		}
 
 let Sekunde = 1000;
 let Minute = Sekunde*60;
@@ -35,18 +43,56 @@ let Monat = Tag*(365/12);
 let Jahr = Tag*365;
 let cooldown = [];
 
-let started = new Date();
+let Time_started = new Date().getTime();
+
+
 
 bot.start();
 
-bot.on(/^\/info$/i, (msg) => {
-	msg.reply.text("Botname: " + botname + "\nVersion: " + Version + "\n\nLast changes: (" + Version + ")\n- Added /info to display botname, version and changelog\n- Fixed issue with support answer\n- Added /delete Reply to a message to delete it\n- Fixed /help trigger in Groups, bot will only awnser if you use /help@" + botname + "\n- Updated /help text\n- Added /cl help\n\nNext big update?\n- FritzOS API Connection\n- Full Support for Fritz!DECT 200\n- Advanced Graphs and database for Dect 200 powerusage, voltage and temperature").then(function(msg)
-             {
+bot.on(/^\/botinfo$/i, (msg) => {
+	let changeloglatest = "changelog." + versionfix;
+	msg.reply.text("Botname: " + botname + "\nVersion: " + version + "\n\nLast changes: (" + version + ")" + changelog[versionfix]).then(function(msg)
+					{
                      setTimeout(function(){
                              bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
                      }, config.waittimetop);
              });
              bot.deleteMessage(msg.chat.id, msg.message_id);
+});
+
+bot.on(/^\/uptime$/i, (msg) => {
+	var uptime = new Date().getTime() - Time_started;
+	
+	var uptimeTage =  Math.floor((uptime)/Tag);
+	var uptimeTageRest = uptime-(uptimeTage*Tag)
+	
+	var uptimeStunde =  Math.floor((uptimeTageRest)/Stunde);
+	var uptimeStundeRest = uptimeTageRest-(uptimeStunde*Stunde)
+	
+	var uptimeMinute =  Math.floor((uptimeStundeRest)/Minute);
+	var uptimeMinuteRest = uptimeStundeRest-(uptimeMinute*Minute)
+	
+	var uptimeSekunde =  Math.floor((uptimeMinuteRest)/Sekunde);
+	var uptimeSekundeRest = uptimeMinuteRest-(uptimeSekunde*Sekunde)
+	
+	let uptimeoutput = "\nSekunden: " + uptimeSekunde;
+	if(uptimeMinute >= 1){
+	uptimeoutput = "\nMinuten: " + uptimeMinute + uptimeoutput;
+	}
+	if(uptimeStunde >= 1){
+	uptimeoutput = "\nStunden: " + uptimeStunde + uptimeoutput;
+	}
+	if(uptimeTage >= 1){
+	uptimeoutput = "\nTage: " + uptimeTage + uptimeoutput;
+	}
+	
+		msg.reply.text("Uptime: " + uptimeoutput).then(function(msg)
+					{
+                     setTimeout(function(){
+                             bot.deleteMessage(msg.result.chat.id,msg.result.message_id);
+                     }, config.waittimetop);
+             });
+        bot.deleteMessage(msg.chat.id, msg.message_id);
 });
 
 bot.on(/^\/changelog$/i, (msg) => {
@@ -101,54 +147,55 @@ bot.on([/^\/geburtstag(.+)$/i,/^\/datumsrechner(.+)$/i], (msg, props) => {
 	if(tss = 'undefined'){
 	var tss = 00;
 	}
-	var newDate = mm+"/"+dd+"/"+yyyy;
+	
+	var newDate = mm + "/" + dd + "/" + yyyy;
 	var TimeDoneUnix = new Date(newDate).getTime() + thh * 60 * 60 * 1000 + tmm * 60 * 1000 + tss * 1000 + 60 * 60 * 1000;
     //msg.reply.text("String(props2) = [" + props2 + "]\nprops2[1] = " + date + "\nprops2[2] = " + time + "\n\ndate[0] = " + dd + "\ndate[1] = " + mm + "\ndate[2] = " + yyyy + "\n\ntime[0] = " + thh + "\ntime[1] = " + tmm + "\ntime[2] = " + tss + "\n\nAktuelles Datum: " + startDateUnix + "\nDein Datum: " + TimeDoneUnix);
 	var monat = new Date().getMonth() + 1;
 	var AlterSekunden = startDateUnix/1000 - TimeDoneUnix/1000;
 	if(AlterSekunden < 0){
 		var AlterSekundenZukunft = AlterSekunden*(-1);
-			var TeilAlterJahre = Math.floor((AlterSekundenZukunft*1000)/Jahr);
-			var TeilAlterJahreRest = AlterSekundenZukunft*1000-(TeilAlterJahre*Jahr)
+			var uptimeJahre = Math.floor((AlterSekundenZukunft*1000)/Jahr);
+			var uptimeJahreRest = AlterSekundenZukunft*1000-(uptimeJahre*Jahr)
 	
-			var TeilAlterMonate = Math.floor((TeilAlterJahreRest)/Monat);
-			var TeilAlterMonateRest = TeilAlterJahreRest-(TeilAlterMonate*Monat)
+			var uptimeMonate = Math.floor((uptimeJahreRest)/Monat);
+			var uptimeMonateRest = uptimeJahreRest-(uptimeMonate*Monat)
 	
-			var TeilAlterTage =  Math.floor((TeilAlterMonateRest)/Tag);
-			var TeilAlterTageRest = TeilAlterMonateRest-(TeilAlterTage*Tag)
+			var uptimeTage =  Math.floor((uptimeMonateRest)/Tag);
+			var uptimeTageRest = uptimeMonateRest-(uptimeTage*Tag)
 	
-			var TeilAlterStunde =  Math.floor((TeilAlterTageRest)/Stunde);
-			var TeilAlterStundeRest = TeilAlterTageRest-(TeilAlterStunde*Stunde)
+			var uptimeStunde =  Math.floor((uptimeTageRest)/Stunde);
+			var uptimeStundeRest = uptimeTageRest-(uptimeStunde*Stunde)
 	
-			var TeilAlterMinute =  Math.floor((TeilAlterStundeRest)/Minute);
-			var TeilAlterMinuteRest = TeilAlterStundeRest-(TeilAlterMinute*Minute)
+			var uptimeMinute =  Math.floor((uptimeStundeRest)/Minute);
+			var uptimeMinuteRest = uptimeStundeRest-(uptimeMinute*Minute)
 	
-			var TeilAlterSekunde =  Math.floor((TeilAlterMinuteRest)/Sekunde);
-			var TeilAlterSekundeRest = TeilAlterMinuteRest-(TeilAlterSekunde*Sekunde)
+			var uptimeSekunde =  Math.floor((uptimeMinuteRest)/Sekunde);
+			var uptimeSekundeRest = uptimeMinuteRest-(uptimeSekunde*Sekunde)
 	
-	msg.reply.text("Angegebenes Zukunftsdatum: " + dd + "." + mm + "." + yyyy + " " + thh + ":" + tmm + ":" + tss + "\nHeutiges Datum: " + new Date().getDate() + "." + monat + "." + new Date().getFullYear() +  " " + new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds() + "." + new Date().getMilliseconds() + "\n\n" + "Zeitunterschied in Sekunden: " + AlterSekundenZukunft + "\nDas sind:\nJahre: " + TeilAlterJahre + "\nMonate: " + TeilAlterMonate + "\nTage: " + TeilAlterTage + "\nStunden: " + TeilAlterStunde + "\nMinuten: " + TeilAlterMinute + "\nSekunden: " + TeilAlterSekunde + "\nMillisekunden: " + TeilAlterSekundeRest + "\nDies ist ohne berücksichtigung der Schaltjahre und Schaltsekunden!")
+	msg.reply.text("Angegebenes Zukunftsdatum: " + dd + "." + mm + "." + yyyy + " " + thh + ":" + tmm + ":" + tss + "\nHeutiges Datum: " + new Date().getDate() + "." + monat + "." + new Date().getFullYear() +  " " + new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds() + "." + new Date().getMilliseconds() + "\n\n" + "Zeitunterschied in Sekunden: " + AlterSekundenZukunft + "\nDas sind:\nJahre: " + uptimeJahre + "\nMonate: " + uptimeMonate + "\nTage: " + uptimeTage + "\nStunden: " + uptimeStunde + "\nMinuten: " + uptimeMinute + "\nSekunden: " + uptimeSekunde + "\nMillisekunden: " + uptimeSekundeRest + "\nDies ist ohne berücksichtigung der Schaltjahre und Schaltsekunden!")
 	bot.deleteMessage(msg.chat.id, msg.message_id);
 	}else{
 		
-	var TeilAlterJahre = Math.floor((AlterSekunden*1000)/Jahr);
-	var TeilAlterJahreRest = AlterSekunden*1000-(TeilAlterJahre*Jahr)
+	var uptimeJahre = Math.floor((AlterSekunden*1000)/Jahr);
+	var uptimeJahreRest = AlterSekunden*1000-(uptimeJahre*Jahr)
 	
-	var TeilAlterMonate = Math.floor((TeilAlterJahreRest)/Monat);
-	var TeilAlterMonateRest = TeilAlterJahreRest-(TeilAlterMonate*Monat)
+	var uptimeMonate = Math.floor((uptimeJahreRest)/Monat);
+	var uptimeMonateRest = uptimeJahreRest-(uptimeMonate*Monat)
 	
-	var TeilAlterTage =  Math.floor((TeilAlterMonateRest)/Tag);
-	var TeilAlterTageRest = TeilAlterMonateRest-(TeilAlterTage*Tag)
+	var uptimeTage =  Math.floor((uptimeMonateRest)/Tag);
+	var uptimeTageRest = uptimeMonateRest-(uptimeTage*Tag)
 	
-	var TeilAlterStunde =  Math.floor((TeilAlterTageRest)/Stunde);
-	var TeilAlterStundeRest = TeilAlterTageRest-(TeilAlterStunde*Stunde)
+	var uptimeStunde =  Math.floor((uptimeTageRest)/Stunde);
+	var uptimeStundeRest = uptimeTageRest-(uptimeStunde*Stunde)
 	
-	var TeilAlterMinute =  Math.floor((TeilAlterStundeRest)/Minute);
-	var TeilAlterMinuteRest = TeilAlterStundeRest-(TeilAlterMinute*Minute)
+	var uptimeMinute =  Math.floor((uptimeStundeRest)/Minute);
+	var uptimeMinuteRest = uptimeStundeRest-(uptimeMinute*Minute)
 	
-	var TeilAlterSekunde =  Math.floor((TeilAlterMinuteRest)/Sekunde);
-	var TeilAlterSekundeRest = TeilAlterMinuteRest-(TeilAlterSekunde*Sekunde)
+	var uptimeSekunde =  Math.floor((uptimeMinuteRest)/Sekunde);
+	var uptimeSekundeRest = uptimeMinuteRest-(uptimeSekunde*Sekunde)
 	
-	msg.reply.text("Angegebenes Geburtsdatum: " + dd + "." + mm + "." + yyyy + " " + thh + ":" + tmm + ":" + tss + "\nHeutiges Datum: " + new Date().getDate() + "." + monat + "." + new Date().getFullYear() +  " " + new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds() + "." + new Date().getMilliseconds() + "\n\n" + msg.from.username + ": dein Alter in Sekunden: " + AlterSekunden + "\nDas sind:\nJahre: " + TeilAlterJahre + "\nMonate: " + TeilAlterMonate + "\nTage: " + TeilAlterTage + "\nStunden: " + TeilAlterStunde + "\nMinuten: " + TeilAlterMinute + "\nSekunden: " + TeilAlterSekunde + "\nMillisekunden: " + TeilAlterSekundeRest + "\nDies ist ohne berücksichtigung der Schaltjahre und Schaltsekunden!")
+	msg.reply.text("Angegebenes Geburtsdatum: " + dd + "." + mm + "." + yyyy + " " + thh + ":" + tmm + ":" + tss + "\nHeutiges Datum: " + new Date().getDate() + "." + monat + "." + new Date().getFullYear() +  " " + new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds() + "." + new Date().getMilliseconds() + "\n\n" + msg.from.username + ": dein Alter in Sekunden: " + AlterSekunden + "\nDas sind:\nJahre: " + uptimeJahre + "\nMonate: " + uptimeMonate + "\nTage: " + uptimeTage + "\nStunden: " + uptimeStunde + "\nMinuten: " + uptimeMinute + "\nSekunden: " + uptimeSekunde + "\nMillisekunden: " + uptimeSekundeRest + "\nDies ist ohne berücksichtigung der Schaltjahre und Schaltsekunden!")
 	bot.deleteMessage(msg.chat.id, msg.message_id);
 	}
 	
@@ -182,7 +229,7 @@ bot.on(/^\/sreply( .+)*$/i, (msg, props) => {
 			MSG = MSG + " " + Para[i];
 		}
 			msg.reply.text("Eine Nachricht wurde an den User:" + ID + " gesendet\n" + MSG)
-			bot.sendMessage(ID, "Antwort vom " + msg.from.username  + MSG)
+			bot.sendMessage(ID, "Antwort von " + msg.from.username + ": " + MSG)
         });
 
 bot.on(/^\/cl$/i, (msg) => {
@@ -342,7 +389,6 @@ bot.on('/checkcounting', (msg) => {
 	let sqlcmd = "SELECT COUNT(*) AS logging FROM optintable where userid = " + hash(msg.from.id) + ";";
 	db.getConnection(function(err, connection){
                 connection.query(sqlcmd, function(err, rows){
-			bot.deleteMessage(msg.chat.id, msg.message_id);
 			msg.reply.text("Your current status is: " + util.inspect(rows[0].logging,false,null)).then(function(msg)
                         {
                                 setTimeout(function(){
@@ -352,10 +398,10 @@ bot.on('/checkcounting', (msg) => {
 			connection.release();
 		});
 	});
+	bot.deleteMessage(msg.chat.id, msg.message_id);
 });
 
 bot.on('/overallmsgs', (msg) => {
-	bot.deleteMessage(msg.chat.id, msg.message_id);
         let sqlcmd = "SELECT COUNT(*) AS amount FROM messagetable";
 	db.getConnection(function(err, connection){
                 connection.query(sqlcmd, function(err, rows){
@@ -369,10 +415,10 @@ bot.on('/overallmsgs', (msg) => {
 			connection.release();
 	        });
 	});
+	bot.deleteMessage(msg.chat.id, msg.message_id);
 });
 
 bot.on('/mymsgs', (msg) => {
-	bot.deleteMessage(msg.chat.id, msg.message_id);
         let sqlcmd = "SELECT COUNT(*) AS amount FROM messagetable WHERE userid = " + hash(msg.from.id) + ";";
 	db.getConnection(function(err, connection){
                 connection.query(sqlcmd, function(err, rows){
@@ -386,6 +432,7 @@ bot.on('/mymsgs', (msg) => {
 			connection.release();
 	        });
 	});
+	bot.deleteMessage(msg.chat.id, msg.message_id);
 });
 
 bot.on('/deletemymsgs', (msg) => {
@@ -410,7 +457,7 @@ bot.on(['/start', '/help'], (msg) => {
 	{
 		if(msg.text.split(' ')[0].endsWith(botname))
 		{
-		let startmsg = "Message Counting: \n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>\n\n Random Stuff:\n/info Botname, Version and Changelog\n/geburtstag DD.MM.YYYY HH:MM:SS to get the time passed\n/cl to calculate numbers\n/support To get help";
+		let startmsg = "Message Counting: \n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>\n\n Random Stuff:\n/botinfo Botname, Version and Changelog\n/geburtstag DD.MM.YYYY HH:MM:SS to get the time passed\n/cl to calculate numbers\n/support To get help";
 		msg.reply.text(startmsg).then(function(msg)
 	                        {
 	                                setTimeout(function(){
@@ -420,7 +467,7 @@ bot.on(['/start', '/help'], (msg) => {
 		bot.deleteMessage(msg.chat.id, msg.message_id);
 		}
 	}else{
-		let startmsg = "Message Counting: \n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>\n\n Random Stuff:\n/info Botname, Version and Changelog\n/geburtstag DD.MM.YYYY HH:MM:SS to get the time passed\n/cl to calculate numbers\n/support To get help";
+		let startmsg = "Message Counting: \n/optin (agree to collecting your messages for counting your msgs)\n/optout (disable collection)\n/checkcounting (check collection status)\n/overallmsgs (overall amount of msgs in group)\n/mymsgs (you're amount of msgs)\n/deletemymsgs (remove all collected data from the DB)\n/top <Zahl>\n/topall <Zahl>\n\n Random Stuff:\n/botinfo Botname, Version and Changelog\n/geburtstag DD.MM.YYYY HH:MM:SS to get the time passed\n/cl to calculate numbers\n/support To get help";
 		msg.reply.text(startmsg).then(function(msg)
 	                        {
 	                                setTimeout(function(){
@@ -498,6 +545,7 @@ bot.on(/^\/top$/i, (msg) => {
 });
 
 bot.on(/^\/top (.+)$/i, (msg, props) => {
+	let Operation_Time_started = new Date().getTime();
 	bot.deleteMessage(msg.chat.id, msg.message_id);
     	var l = props.match[1];
 	if (isNaN(l)) {
@@ -538,7 +586,8 @@ bot.on(/^\/top (.+)$/i, (msg, props) => {
                                 result = result + i1 + user + " | Msgs#: " + rows[i].Msgs;
                                 result = result + "\n";
                         }
-                        result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo\n\nEulen triggerd:" + t;
+						var OperationTime = new Date().getTime() - Operation_Time_started;
+                        result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo\n\nOperationTime: " + OperationTime/1000 + " Secounds";
                         msg.reply.text(result, { parseMode: 'markdown' }).then(function(msg)
                         {
                                 setTimeout(function(){
@@ -646,6 +695,7 @@ bot.on(/^\/topall$/i, (msg) => {
 });
 
 bot.on(/^\/topall (.+)$/i, (msg, props) => {
+	let Operation_Time_started = new Date().getTime();
    	var l = props.match[1];
 	if (isNaN(l)) {
 		var l = 10;
@@ -683,7 +733,8 @@ bot.on(/^\/topall (.+)$/i, (msg, props) => {
                             result = result + i1 + user + " | Msgs#: " + rows[i].Msgs;
                             result = result + "\n";
                     }
-                    result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo\n\nEulen triggerd:" + t;
+					var OperationTime = new Date().getTime() - Operation_Time_started;
+                    result = result + "\nIf you want you're name to show up use: /updateuserinfo\nWhen you want to anonymize youreself again use /deleteuserinfo\n\nOperationTime: " + OperationTime/1000 + " Secounds";
                     msg.reply.text(result, { parseMode: 'markdown' }).then(function(msg)
                     {
 		

@@ -6,7 +6,9 @@ Requirements:
 install node js and mysql and FritzAPI
 
 https://nodejs.org
+
 https://www.mysql.com
+
 https://github.com/andig/fritzapi/blob/master/package.json
 
 install dependencies via ```npm install```

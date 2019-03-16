@@ -15,4 +15,11 @@ CREATE TABLE IF NOT EXISTS `optintable` (
 	`userid` DOUBLE NOT NULL,
 	PRIMARY KEY (`userid`)
 );
+
+ALTER TABLE `counterdb`.`optintable` 
+ADD COLUMN `username` VARCHAR(255) NULL AFTER `userid`;
+
+ALTER TABLE `counterdb`.`messagetable` 
+DROP COLUMN `username`;
+
 ALTER TABLE `counterdb`.`messagetable` CHANGE COLUMN `time` `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
